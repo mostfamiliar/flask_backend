@@ -1,4 +1,5 @@
 # Previous imports remain...
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
@@ -12,10 +13,12 @@ class WaterLevelModel(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String())
-    model = db.Column(db.String())
-    doors = db.Column(db.Integer())
+    date= db.Column(db.DateTime())
+    discharge = db.Column(db.Float())
+    height = db.Column(db.Float())
 
-    def __init__(self, date, discharge, height):
+    def __init__(self, name, date, discharge, height):
+        self.name = name
         self.date = date
         self.discharge = discharge
         self.height = height
