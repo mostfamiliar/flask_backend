@@ -2,7 +2,8 @@
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_cors import CORS, cross_origin  
+from flask_cors import CORS, cross_origin
+from sqlalchemy.dialects.postgresql import JSON
 
 app = Flask(__name__)
 CORS(app)
@@ -27,6 +28,21 @@ class WaterLevelModel(db.Model):
 
     def __repr__(self):
         return f"<WaterLevel {self.name}>"
+
+class TrailModel(db.Model):
+    __tablename__ = 'trail'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String())
+    route = db.Column(JSON)
+
+    def __init__(self, name, date, discharge, height):
+        self.name = name
+        self.route = date
+
+    def __repr__(self):
+        return f"<Trail {self.name}>"
+
 
 @app.route('/water_levels', methods=['GET'])
 def handle_water_levels():
