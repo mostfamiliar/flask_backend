@@ -18,7 +18,7 @@ class WaterLevelModel(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String())
-    date= db.Column(db.DateTime())
+    date = db.Column(db.DateTime())
     discharge = db.Column(db.Float())
     height = db.Column(db.Float())
 
@@ -46,13 +46,52 @@ class TrailModel(db.Model):
         return f"<Trail {self.name}>"
 
 
-@app.route('/water_levels', methods=['GET'])
+class WeatherModel(db.Model):
+    __tablename__ = 'weather'
+
+    id = db.Column(db.Integer, primary_key=True)
+    county = db.Column(db.String())
+    temperature = db.Column(db.Float())
+    date = db.Column(db.DateTime())
+
+    def __init__(self, county, date, temperature):
+        self.name = name
+        self.date = date
+        self.county = county
+        self.temperature = temperature
+
+    def __repr__(self):
+        return f"<Weather {self.name}>"
+
+
+@app.route('/streamflow', methods=['GET'])
 def handle_water_levels():
     if request.method == 'GET':
         month = request.args.get('month')
 
-        water_level = WaterLevelModel.query.with_entities(func.avg(WaterLevelModel.height)).filter(extract('month', WaterLevelModel.date)==str(month)).all()
+        water_level = WaterLevelModel.query.with_entities(func.avg(WaterLevelModel.discharge)).filter(extract('month', WaterLevelModel.date)==str(month)).all()
 
         result = [round(r,1) for r, in water_level]
 
         return jsonify({"water_level": result[0]})
+
+
+@app.route('/trail_routes', methods=['GET'])
+def handle_trail_route():
+    if request.method == 'GET':
+        trail_routes = TrailModel.query.with_entities(TrailModel.route).all()
+
+        result = [r for r, in trail_routes]
+
+        return jsonify({"route": result[0]})
+
+
+@app.route('/temperature', methods=['GET'])
+def handle_temperature_route():
+        month = request.args.get('month')
+
+        temperature = WeatherModel.query.with_entities(WeatherModel.temperature).filter(extract('month', WaterLevelModel.date)==str(month)).all()
+
+        result = [round(r,1) for r, in temperature]
+
+        return jsonify({"temperature": result[0]})
