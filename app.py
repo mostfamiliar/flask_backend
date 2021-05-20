@@ -1,6 +1,8 @@
 # Previous imports remain...
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import extract
+from sqlalchemy.sql import func
 from flask_migrate import Migrate
 from flask_cors import CORS, cross_origin
 from sqlalchemy.dialects.postgresql import JSON
@@ -47,11 +49,10 @@ class TrailModel(db.Model):
 @app.route('/water_levels', methods=['GET'])
 def handle_water_levels():
     if request.method == 'GET':
-        water_levels = WaterLevelModel.query.all()
-        results = [
-            {
-                "name": water.name,
-                "height": water.height
-            } for water in water_levels]
+        month = request.args.get('month')
 
-        return {"count": len(results), "water_level": results}
+        water_level = WaterLevelModel.query.with_entities(func.avg(WaterLevelModel.height)).filter(extract('month', WaterLevelModel.date)==str(month)).all()
+
+        result = [round(r,1) for r, in water_level]
+
+        return jsonify({"water_level": result[0]})
